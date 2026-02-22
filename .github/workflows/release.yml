@@ -1,5 +1,3 @@
-cd ~/Sentinel-DCS
-cat > .github/workflows/release.yml <<'YAML'
 name: Release
 
 on:
@@ -8,44 +6,33 @@ on:
       - "v*.*.*"
 
 permissions:
-  contents: write   # required to create GitHub Release + upload assets
-
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  build-and-release:
+  release:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
-      - name: Build release archive + checksum
+      - name: Build source archive
         run: |
-          set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
           git archive --format=zip -o "sentinel-dcs-${TAG}.zip" HEAD
           sha256sum "sentinel-dcs-${TAG}.zip" > "sentinel-dcs-${TAG}.zip.sha256"
-          ls -lah "sentinel-dcs-${TAG}.zip" "sentinel-dcs-${TAG}.zip.sha256"
 
-      - name: Install syft (SBOM generator)
+      - name: Install Syft (SBOM generator)
         uses: anchore/sbom-action/download-syft@v0.17.9
 
-      - name: Generate SBOMs (best-effort)
+      - name: Generate SBOM (best effort)
         continue-on-error: true
         run: |
-          set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          syft "dir:." -o spdx-json > "SBOM-${TAG}.spdx.json" || true
-          syft "dir:." -o cyclonedx-json > "SBOM-${TAG}.cdx.json" || true
-          ls -lah SBOM-* || true
+          syft dir:. -o spdx-json > "SBOM-${TAG}.spdx.json" || true
+          syft dir:. -o cyclonedx-json > "SBOM-${TAG}.cdx.json" || true
 
-      - name: Create GitHub Release + upload assets
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
@@ -55,4 +42,3 @@ jobs:
             sentinel-dcs-*.zip.sha256
             SBOM-*.spdx.json
             SBOM-*.cdx.json
-YAML
