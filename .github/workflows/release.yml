@@ -43,18 +43,14 @@ jobs:
           COSIGN_EXPERIMENTAL: "true"
         run: |
           TAG="${GITHUB_REF_NAME}"
-          cosign sign-blob --yes "sentinel-dcs-${TAG}.zip" \
-            --output-signature "sentinel-dcs-${TAG}.zip.sig" \
+          cosign sign-blob --yes "sentinel-dcs-${TAG}.            --output-signature "sentinel-dcs-${TAG}.zip.sig" \
             --output-certificate "sentinel-dcs-${TAG}.zip.pem"
-          cosign sign-blob --yes "SBOM-${TAG}.spdx.json" \
+         cosign sign-blob --yes "SBOM-${TAG}.spdx.json" \
             --output-signature "SBOM-${TAG}.spdx.json.sig" \
             --output-certificate "SBOM-${TAG}.spdx.json.pem"
 
       # SLSA provenance generator (GitHub-maintained)
-      - name: Generate SLSA provenance
-        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
-        with:
-          base64-subjects: ""
+ 
         # Note: This step produces provenance via reusable workflow patterns.
         # If your org disallows reusable workflows, we can switch to attestations below.
 
