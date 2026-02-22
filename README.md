@@ -137,3 +137,10 @@ real LLM API validation
 independent replication
 adversarial red-team testing
 production monitoring interface
+## Citation
+
+If you use Sentinel-DCS, cite:
+
+Atchley, Devin Earl (2026).  
+Sentinel-DCS. Zenodo.  
+https://doi.org/10.5281/zenodo.18735336
