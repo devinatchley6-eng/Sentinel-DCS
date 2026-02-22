@@ -34,7 +34,7 @@ jobs:
           syft "dir:." -o cyclonedx-json > "SBOM-${TAG}.cdx.json" || true
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v3
         with:
           subject-path: "sentinel-dcs-${{ github.ref_name }}.zip"
 
