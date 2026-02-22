@@ -1,0 +1,35 @@
+version: v1.1-hardened
+seed: 42
+stable_window_n: 4000
+drift_window_n: 2000
+
+tail_classifier:
+  auc_threshold: 0.75
+  model: calibrated_logistic_regression
+  train_window: stable_only
+
+sequential_detector:
+  type: CUSUM
+  cusum:
+    k: 0.12
+    h: 8
+
+oscillation_detector:
+  type: variance_ratio_f_test
+  block_size: 20
+  alpha: 0.05
+
+dual_embedding_invariance:
+  auc_delta_max: 0.05
+
+baseline_comparison:
+  description: lexical + EWMA + CUSUM features
+
+integrity_attacks:
+  threshold_creep_delta_min: 0.001
+  slice_mean_shift_min: 0.005
+  missingness_min: 0.01
+
+multi_tail_vector:
+  tails: [T1, T2, T3, T4]
+  aggregate: max

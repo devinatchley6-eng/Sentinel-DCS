@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use Sentinel-DCS, please cite this repository and the predecessor Conflict Validator artifact."
+title: "Sentinel-DCS"
+type: software
+authors:
+  - family-names: "Atchley"
+    given-names: "Devin Earl"
+    email: "devinatchley6@gmail.com"
+repository-code: "https://github.com/devinatchley6-eng/Sentinel-DCS"
+keywords:
+  - LLM monitoring
+  - behavioral drift
+  - sequential detection
+  - integrity attacks
+  - preregistration
+references:
+  - type: software
+    title: "Conflict Validator"
+    authors:
+      - family-names: "Atchley"
+        given-names: "Devin Earl"
+    doi: "10.5281/zenodo.18654778"
+    repository: "https://doi.org/10.5281/zenodo.18654778"
