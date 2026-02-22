@@ -23,7 +23,7 @@ jobs:
           sha256sum "sentinel-dcs-${TAG}.zip" > "sentinel-dcs-${TAG}.zip.sha256"
 
       - name: Install Syft (SBOM generator)
-        uses: anchore/sbom-action/download-syft@v0.17.9
+        uses: anchore/sbom-action/download-syft@v0.22.2
 
       - name: Generate SBOM (best effort)
         continue-on-error: true
