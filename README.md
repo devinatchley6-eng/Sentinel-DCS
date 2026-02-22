@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18735336.svg)](https://doi.org/10.5281/zenodo.18735336)
 Sentinel-DCS
 Preregistered Black-Box Behavioral Monitoring for Large Language Models
 Sentinel-DCS is a reproducible monitoring framework for detecting behavioral drift, silent bifurcation, and integrity attacks in deployed large language model (LLM) systems using only prompt-response observations. No access to model weights, logits, or internal state is required.
@@ -139,8 +140,16 @@ adversarial red-team testing
 production monitoring interface
 ## Citation
 
-If you use Sentinel-DCS, cite:
+If you use Sentinel-DCS in research or monitoring work, please cite:
 
 Atchley, Devin Earl (2026).  
-Sentinel-DCS. Zenodo.  
+Sentinel-DCS: Preregistered Black-Box Behavioral Monitoring for Large Language Models.  
+Zenodo.  
 https://doi.org/10.5281/zenodo.18735336
+## Version Provenance
+
+Sentinel-DCS v0.2 is permanently archived on Zenodo:
+
+DOI: https://doi.org/10.5281/zenodo.18735336
+
+This DOI resolves to the exact repository snapshot corresponding to the GitHub release tag used for archival. All claims about Sentinel-DCS v0.2 refer to this fixed version unless otherwise specified.

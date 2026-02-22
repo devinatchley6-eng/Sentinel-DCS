@@ -1,0 +1,79 @@
+name: Release (SLSA + SBOM + Signed)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+  id-token: write  # required for keyless signing + provenance
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare artifacts
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          git archive --format=zip -o "sentinel-dcs-${TAG}.zip" HEAD
+          sha256sum "sentinel-dcs-${TAG}.zip" > "sentinel-dcs-${TAG}.zip.sha256"
+
+      # SBOM (SPDX) via syft
+      - name: Install syft
+        uses: anchore/sbom-action/download-syft@v0.17.9
+
+      - name: Generate SBOM (SPDX + CycloneDX)
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          syft "dir:." -o spdx-json > "SBOM-${TAG}.spdx.json"
+          syft "dir:." -o cyclonedx-json > "SBOM-${TAG}.cdx.json"
+
+      # Keyless signing via Sigstore Cosign (OIDC)
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3.7.0
+
+      - name: Sign artifacts (keyless)
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          cosign sign-blob --yes "sentinel-dcs-${TAG}.zip" \
+            --output-signature "sentinel-dcs-${TAG}.zip.sig" \
+            --output-certificate "sentinel-dcs-${TAG}.zip.pem"
+          cosign sign-blob --yes "SBOM-${TAG}.spdx.json" \
+            --output-signature "SBOM-${TAG}.spdx.json.sig" \
+            --output-certificate "SBOM-${TAG}.spdx.json.pem"
+
+      # SLSA provenance generator (GitHub-maintained)
+      - name: Generate SLSA provenance
+        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+        with:
+          base64-subjects: ""
+        # Note: This step produces provenance via reusable workflow patterns.
+        # If your org disallows reusable workflows, we can switch to attestations below.
+
+      # GitHub artifact attestation (modern alternative to SLSA workflow)
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "sentinel-dcs-${{ github.ref_name }}.zip"
+
+      - name: Create GitHub Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            sentinel-dcs-*.zip
+            sentinel-dcs-*.zip.sha256
+            sentinel-dcs-*.zip.sig
+            sentinel-dcs-*.zip.pem
+            SBOM-*.spdx.json
+            SBOM-*.cdx.json
+            SBOM-*.spdx.json.sig
+            SBOM-*.spdx.json.pem
