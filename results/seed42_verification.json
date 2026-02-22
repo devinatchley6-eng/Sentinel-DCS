@@ -1,4 +1,6 @@
 {
   "seed": 42,
-  "note": "Canonical placeholder. Replace with real verification output from scripts/run_full_verification.py --seed 42"
+  "timestamp_utc": "2026-02-22T21:31:33.601150Z",
+  "status": "stub",
+  "message": "Replace stub with full synthetic verification pipeline."
 }
