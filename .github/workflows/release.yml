@@ -1,3 +1,5 @@
+cd ~/Sentinel-DCS
+cat > .github/workflows/release.yml <<'YAML'
 name: Release
 
 on:
@@ -6,8 +8,11 @@ on:
       - "v*.*.*"
 
 permissions:
-  contents: write
-  id-token: write
+  contents: write   # required to create GitHub Release + upload assets
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build-and-release:
@@ -15,36 +20,39 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-      - name: Create source archive + checksum
+      - name: Build release archive + checksum
         run: |
+          set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
           git archive --format=zip -o "sentinel-dcs-${TAG}.zip" HEAD
           sha256sum "sentinel-dcs-${TAG}.zip" > "sentinel-dcs-${TAG}.zip.sha256"
+          ls -lah "sentinel-dcs-${TAG}.zip" "sentinel-dcs-${TAG}.zip.sha256"
 
-      - name: Install syft
+      - name: Install syft (SBOM generator)
         uses: anchore/sbom-action/download-syft@v0.17.9
 
-      - name: Generate SBOM (best-effort)
+      - name: Generate SBOMs (best-effort)
         continue-on-error: true
         run: |
+          set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
           syft "dir:." -o spdx-json > "SBOM-${TAG}.spdx.json" || true
           syft "dir:." -o cyclonedx-json > "SBOM-${TAG}.cdx.json" || true
+          ls -lah SBOM-* || true
 
-       - name: Attest build provenance
-         continue-on-error: true
-         uses: actions/attest-build-provenance@v1
-         with:
-        subject-path: "sentinel-dcs-${{ github.ref_name }}.zip"
-
-      - name: Create GitHub Release and upload assets
+      - name: Create GitHub Release + upload assets
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          fail_on_unmatched_files: false
           files: |
             sentinel-dcs-*.zip
             sentinel-dcs-*.zip.sha256
             SBOM-*.spdx.json
             SBOM-*.cdx.json
+YAML
