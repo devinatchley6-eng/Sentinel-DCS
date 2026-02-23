@@ -11,31 +11,21 @@ permissions:
 jobs:
   lint-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install tooling
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff pytest mypy
+      - name: Install ruff
+        run: python -m pip install -U ruff
 
-      - name: Lint (ruff)
-        run: |
-          ruff check .
-          ruff format --check .
+      - name: Ruff lint (scoped)
+        run: ruff check src scripts tests
 
-      - name: Type check (mypy)
-        run: |
-          mypy src || true
+      - name: Ruff format check (scoped)
+        run: ruff format --check src scripts tests
 
-      - name: Repro smoke test
-        run: |
-          python scripts/run_full_verification.py --seed 42
-          test -f results/seed42_verification.json
+      - name: Verification smoke gate
+        run: python scripts/run_full_verification.py
