@@ -1,44 +1,9 @@
 name: Release
 
-on:
-  push:
-    tags:
-      - "v*.*.*"
+exit
 
-permissions:
-  contents: write
 
-jobs:
-  release:
-    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Build source archive
-        run: |
-          TAG="${GITHUB_REF_NAME}"
-          git archive --format=zip -o "sentinel-dcs-${TAG}.zip" HEAD
-          sha256sum "sentinel-dcs-${TAG}.zip" > "sentinel-dcs-${TAG}.zip.sha256"
-
-      - name: Install Syft (SBOM generator)
-        uses: anchore/sbom-action/download-syft@v0.17.9
-
-      - name: Generate SBOM (best effort)
-        continue-on-error: true
-        run: |
-          TAG="${GITHUB_REF_NAME}"
-          syft dir:. -o spdx-json > "SBOM-${TAG}.spdx.json" || true
-          syft dir:. -o cyclonedx-json > "SBOM-${TAG}.cdx.json" || true
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          fail_on_unmatched_files: false
-          files: |
-            sentinel-dcs-*.zip
-            sentinel-dcs-*.zip.sha256
-            SBOM-*.spdx.json
-            SBOM-*.cdx.json
+exit
+exit

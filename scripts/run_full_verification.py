@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-import argparse, json, pathlib, datetime
+import argparse
+import datetime
+import json
+import pathlib
+
 
 def main():
     ap = argparse.ArgumentParser()
